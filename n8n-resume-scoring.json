@@ -1,0 +1,622 @@
+{
+  "name": "n8n-resume-scoring",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "value": "1czDvLu1Q3WarZsq98fYf9qutkpn4Gy2Q",
+          "mode": "list",
+          "cachedResultName": "Resumes_uploaded",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1czDvLu1Q3WarZsq98fYf9qutkpn4Gy2Q"
+        },
+        "event": "fileCreated",
+        "options": {}
+      },
+      "id": "2fd49c04-8737-4a35-8756-095807614b14",
+      "name": "New Resume Uploaded",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "typeVersion": 1,
+      "position": [
+        -448,
+        -144
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "S8bzJDccraRbhSFr",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "options": {}
+      },
+      "id": "92765b5f-f7c5-4257-9465-8d89b3a0983e",
+      "name": "Extract Resume Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -240
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        }
+      },
+      "id": "bcc1b523-ab83-4499-ae3a-7ec468b13066",
+      "name": "Download Resume",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        -240
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "S8bzJDccraRbhSFr",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## The Api key needs to come from gcloud api keys activate the gdrive and sheets api\n\ncreated folder @drive/resumes_uploaded\n\nusing that just wacth folder for any incoming resumes",
+        "height": 288,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        -192
+      ],
+      "typeVersion": 1,
+      "id": "f1494703-a6e7-493a-9b85-17a929dc5a2e",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {
+          "clashHandling": {
+            "values": {
+              "resolveClash": "addSuffix"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        224,
+        -144
+      ],
+      "id": "b48596ee-4500-4e08-8184-4eeb10b0078b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "content": "We cant directly access the files on gdive we need to download each file spearately and by using the id for each file 1sr step we need to get the data into an data variable",
+        "height": 256,
+        "width": 336
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -192,
+        160
+      ],
+      "typeVersion": 1,
+      "id": "752e814e-1d07-4244-ac60-b2d21ac193e0",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1rDj1BRp3jEblN-umSsZxvBzZqghA2n6s",
+          "mode": "list",
+          "cachedResultName": "jobdescription.pdf",
+          "cachedResultUrl": "https://drive.google.com/file/d/1rDj1BRp3jEblN-umSsZxvBzZqghA2n6s/view?usp=drivesdk"
+        },
+        "options": {
+          "binaryPropertyName": "Job_description"
+        }
+      },
+      "id": "a1c11aa2-d566-4d03-a19e-7dc1dfffbce3",
+      "name": "Get_job_description_from_drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -224,
+        -48
+      ],
+      "alwaysOutputData": true,
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "S8bzJDccraRbhSFr",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "fater getting thedata from drive we need extract only the text fields from it using the extract from pdf and only focussing on data avoid **using other variable undeclared**",
+        "height": 176,
+        "width": 288
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -416
+      ],
+      "typeVersion": 1,
+      "id": "1d6addc1-ba34-4505-962b-7a0a842d9ba7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "content": "merge the both the job desc and resume text into a single json object as the ai agent node cant take input from both"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        16
+      ],
+      "typeVersion": 1,
+      "id": "0c8ded32-7d5a-4d2e-ae6b-47606ff2e822",
+      "name": "Sticky Note3"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are an ATS scoring engine.\n\nCompare the resume against the job description.\n\nScoring rules:\n- Start from 0\n- Add points ONLY when evidence exists in the resume\n- Skills match: +3 each\n- Relevant experience: +20\n- Tools / technologies match: +10\n- Domain relevance: +10\n- Education relevance: +10\n- Missing critical requirements: −10 each\n\nFINAL SCORE MUST BE BETWEEN 1 AND 100.\nNEVER return 0 unless resume is completely irrelevant.\n\nReturn ONLY valid JSON.\nDO NOT add markdown.\nDO NOT add explanations outside JSON.\n\nResume:\n{{ $json.text_1 }}\n\nJob Description:\n{{ $json.text_2 }}\n\nJSON FORMAT:\n{\n  \"candidate_name\": \"\",\n  \"email\": \"\",\n  \"phone\": \"\",\n  \"score\": 1,\n  \"reasoning\": \"\",\n  \"matched_skills\": [],\n  \"missing_skills\": []\n}\n",
+        "hasOutputParser": true,
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        432,
+        -144
+      ],
+      "id": "92aadfa8-1af0-4b80-afb6-33d193daa95c",
+      "name": "AI Agent",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"type\": \"object\",\n  \"required\": [\n    \"candidate_name\",\n    \"email\",\n    \"phone\",\n    \"score\",\n    \"reasoning\",\n    \"matched_skills\",\n    \"missing_skills\"\n  ],\n  \"properties\": {\n    \"candidate_name\": {\n      \"type\": \"string\"\n    },\n    \"email\": {\n      \"type\": \"string\"\n    },\n    \"phone\": {\n      \"type\": \"string\"\n    },\n    \"score\": {\n      \"type\": \"number\"\n    },\n    \"reasoning\": {\n      \"type\": \"string\"\n    },\n    \"matched_skills\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    },\n    \"missing_skills\": {\n      \"type\": \"array\",\n      \"items\": { \"type\": \"string\" }\n    }\n  },\n  \"additionalProperties\": false\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        64
+      ],
+      "id": "a6636eef-4887-4402-9d84-4c5dbf0613b7",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "model": "llama-3.1-8b-instant",
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "typeVersion": 1,
+      "position": [
+        432,
+        144
+      ],
+      "id": "4e50c2d8-acf0-4402-ac9b-d07f5843e6a4",
+      "name": "Groq Chat Model",
+      "credentials": {
+        "groqApi": {
+          "id": "98FowAoPMutfoqbd",
+          "name": "Groq account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "need to work on the query and output parser"
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        224
+      ],
+      "typeVersion": 1,
+      "id": "512f64ca-a643-453a-b7cf-79e73370711e",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "operation": "pdf",
+        "binaryPropertyName": "Job_description",
+        "options": {}
+      },
+      "id": "c2d3c954-7e7e-4410-9d68-1cd863373e7a",
+      "name": "jd_extract",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        -48
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "documentId": {
+          "__rl": true,
+          "value": "=1APjrG8TBDZCQKRcdLa-VVKtUDTVtyr9JHlG2agm9dLM",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Sheet1",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Candidate Name": "={{ $json['Candidate Name'] }}",
+            "Email": "={{ $json.Email }}",
+            "Mobile": "={{ $json.Phone }}",
+            "Resume File": "={{ $json['Resume File'] }}",
+            "Reasoning": "={{ $json.Reasoning }}",
+            "Relevence Score": "={{ $json.Score }}",
+            "Matched Skills": "={{ $json['Matched Skills'] }}",
+            "Missing Skills": "={{ $json['Missing Skills'] }}",
+            "Last Updated": "={{ $json['Evaluated At'] }}"
+          },
+          "matchingColumns": [
+            "Resume File"
+          ],
+          "schema": [
+            {
+              "id": "Candidate Name",
+              "displayName": "Candidate Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "displayName": "Email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Mobile",
+              "displayName": "Mobile",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Resume File",
+              "displayName": "Resume File",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Relevence Score",
+              "displayName": "Relevence Score",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "displayName": "Reasoning",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Matched Skills",
+              "displayName": "Matched Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Missing Skills",
+              "displayName": "Missing Skills",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "displayName": "Last Updated",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "id": "d386091d-db14-4d1d-8d46-52c4340b9c55",
+      "name": "excel_update",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1440,
+        -144
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "itfAxt6tcgd18k1g",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "Candidate Name",
+              "value": "={{$json.candidate_name }}",
+              "type": "string"
+            },
+            {
+              "id": "id-2",
+              "name": "Email",
+              "value": "={{ $json.email }}",
+              "type": "string"
+            },
+            {
+              "id": "id-3",
+              "name": "Phone",
+              "value": "={{ $json.phone }}",
+              "type": "string"
+            },
+            {
+              "id": "id-4",
+              "name": "Score",
+              "value": "={{ $json.score }}",
+              "type": "number"
+            },
+            {
+              "id": "id-5",
+              "name": "Reasoning",
+              "value": "={{ $json.reasoning}}",
+              "type": "string"
+            },
+            {
+              "id": "id-6",
+              "name": "Matched Skills",
+              "value": "={{ $json.matched_skills }}",
+              "type": "string"
+            },
+            {
+              "id": "id-7",
+              "name": "Missing Skills",
+              "value": "={{ $json.missing_skills}}",
+              "type": "string"
+            },
+            {
+              "id": "id-8",
+              "name": "Resume File",
+              "value": "={{ $('Download Resume').item.json.name}}",
+              "type": "string"
+            },
+            {
+              "id": "id-9",
+              "name": "Evaluated At",
+              "value": "={{ $now.toISO() }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "564d980e-7164-4279-804f-886597c3eff5",
+      "name": "prep data",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        -144
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "let raw = $json.output;\n\n// Remove leading = if present\nraw = raw.trim();\nif (raw.startsWith('=')) {\n  raw = raw.slice(1);\n}\n\n// Parse safely\nconst parsed = JSON.parse(raw);\n\nreturn [{\n  candidate_name: parsed.candidate_name,\n  email: parsed.email,\n  phone: parsed.phone,\n  score: parsed.score,\n  reasoning: parsed.reasoning,\n  matched_skills: parsed.matched_skills.join(', '),\n  missing_skills: parsed.missing_skills.join(', ')\n}];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        784,
+        -144
+      ],
+      "id": "ad936b56-a2a1-4393-b446-cfceec278199",
+      "name": "Code in JavaScript"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "New Resume Uploaded": {
+      "main": [
+        [
+          {
+            "node": "Download Resume",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get_job_description_from_drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Resume Text": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Resume": {
+      "main": [
+        [
+          {
+            "node": "Extract Resume Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get_job_description_from_drive": {
+      "main": [
+        [
+          {
+            "node": "jd_extract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        []
+      ]
+    },
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "jd_extract": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "prep data": {
+      "main": [
+        [
+          {
+            "node": "excel_update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "prep data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "availableInMCP": false
+  },
+  "versionId": "73ca15ee-e498-4d46-b215-765fed0f67a6",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "ae92f241eee4065afdd2e07359bdc52a594100aa1110579ee145abd1b98e2654"
+  },
+  "id": "o8eqXQir1rVkiYSC",
+  "tags": []
+}
